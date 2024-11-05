@@ -1,11 +1,17 @@
 # criar endpoint
 from ninja import Router, Query
-from .schemas import LivroSchema, AvaliacaoSchema, FiltrosSortear
+from .schemas import LivroSchema, AvaliacaoSchema, FiltrosSortear,LivrosViewSchema
 from .models import Livros, Categorias
+from typing import List
 
 livros_router = Router()
 
-@livros_router.post('')
+@livros_router.get('/', response={200: List[LivrosViewSchema]})
+def get_livro(request):
+    livros = Livros.objects.all()
+    return livros
+
+@livros_router.post('/')
 def create_livro(request, livro_schema: LivroSchema):
     nome = livro_schema.dict()['nome']
     streaming = livro_schema.dict()['streaming']
@@ -47,7 +53,7 @@ def deletar_livro(request, livro_id: int):
 @livros_router.get('/sortear/', response={200: LivroSchema, 404: dict})
 def sortear_livro(request, filtros: Query[FiltrosSortear]):
     nota_minima = filtros.dict()['nota_minima']
-    categoria = filtros.dict()['categoria']
+    categoria = filtros.dict()['categorias']
     reler = filtros.dict()['reler']
     
     livros = Livros.objects.all()
